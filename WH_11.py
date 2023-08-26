@@ -58,7 +58,7 @@ class Birthday(Field):
 
     @staticmethod
     def birthday_validation(birthday: str) -> None:
-        if type(birthday) != str:
+        if type(birthday) != str: # isinstance
             raise ValueError("Phone have to be str")
         date_pattern = r"^\d{4}-\d{2}-\d{2}$"
         if not re.match(date_pattern, birthday):
@@ -78,7 +78,7 @@ print(birthday_A)
 class Record:
     def __init__(self, name: Name, phone: Phone = None, birthday: Birthday = None):
         self.name = name
-        self.phones = [phone] if phone else []
+        self.phones = [phone] if phone is not None else []
         self.birthday = birthday
 
     def add_phone(self, phone: Phone):
@@ -115,6 +115,11 @@ class Record:
             return (next_birthday_date - current_date).days
         else:
             return f"This contact doesn't have the info about birthday"
+    
+    def __str__(self):
+        str_phones = ", ".join(map(str, self.phones))
+                
+        return f'{self.name} {str_phones} {self.birthday}'
 
 
 
@@ -135,11 +140,11 @@ class AddressBook(UserDict):
 
         start_idx = 0
 
-        for page_num in range(total_pages):
+        for _ in range(total_pages):
             end_idx = start_idx + records_per_page
             page = sorted_contacts[start_idx:end_idx]
             yield page
-            start_idx = page_num * records_per_page + 1
+            start_idx = end_idx + 1
 
 rec = Record("Bob", "777777777777", "2020-01-01")
 rec1 = Record("Bob1", "555555555555", "2010-07-02")
