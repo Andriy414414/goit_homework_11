@@ -1,6 +1,5 @@
 from collections import UserDict
-import datetime
-from datetime import datetime, timedelta
+from datetime import date
 import re
 
 
@@ -45,7 +44,7 @@ class Phone(Field):
     @Field.value.setter
     def value(self, phone: str) -> None:
         self.phone_validation(phone)
-        self._value = phone
+        Field.value.fset(self, phone)
 
 
 phone = Phone("12456788756")
@@ -68,7 +67,7 @@ class Birthday(Field):
     @Field.value.setter
     def value(self, birthday: str) -> None:
         self.birthday_validation(birthday)
-        self._value = birthday
+        Field.value.fset(self, birthday)
 
 
 birthday_A = Birthday("2000-01-01")
@@ -101,25 +100,23 @@ class Record:
             raise ValueError(f"old phone: {phone} not exists")
 
     def days_to_birthday(self):
-        current_date = datetime.now().date()
+        current_date = date.today()
         if self.birthday != None:
-            birthday_date = datetime.strptime(self.birthday, "%Y-%m-%d").date()
+            birthday_date = date(self.birthday, "%Y-%m-%d")
 
-            next_birthday_date = datetime(
+            next_birthday_date = date(
                 current_date.year, birthday_date.month, birthday_date.day
-            ).date()
+            )
             if current_date > next_birthday_date:
-                next_birthday_date = datetime(
+                next_birthday_date = date(
                     current_date.year + 1, birthday_date.month, birthday_date.day
-                ).date()
+                )
 
             return (next_birthday_date - current_date).days
         else:
             return f"This contact doesn't have the info about birthday"
 
 
-rec = Record("Bob", "777777777777", "2020-01-01")
-print(rec)
 
 
 class AddressBook(UserDict):
@@ -143,6 +140,16 @@ class AddressBook(UserDict):
             page = sorted_contacts[start_idx:end_idx]
             yield page
             start_idx = page_num * records_per_page + 1
+
+rec = Record("Bob", "777777777777", "2020-01-01")
+rec1 = Record("Bob1", "555555555555", "2010-07-02")
+rec2 = Record("Bob2", "666666666666", "2001-09-20")
+rec3 = Record("Bob3", "111111111111", "2000-04-15")
+rec4 = Record("Bob4", "222222222222", "1995-02-08")
+
+ab = AddressBook.add_record(rec)
+
+print(ab)
 
 
 if __name__ == "__main__":
