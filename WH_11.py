@@ -47,11 +47,6 @@ class Phone(Field):
         Field.value.fset(self, phone)
 
 
-phone = Phone("12456788756")
-
-print(phone)
-
-
 class Birthday(Field):
     def __init__(self, value):
         super().__init__(value)
@@ -68,11 +63,6 @@ class Birthday(Field):
     def value(self, birthday: str) -> None:
         self.birthday_validation(birthday)
         Field.value.fset(self, birthday)
-
-
-birthday_A = Birthday("2000-01-01")
-
-print(birthday_A)
 
 
 class Record:
@@ -122,8 +112,6 @@ class Record:
         return f'{self.name} {str_phones} {self.birthday}'
 
 
-
-
 class AddressBook(UserDict):
     def add_record(self, record: Record):
         self.data[record.name.value] = record
@@ -134,40 +122,16 @@ class AddressBook(UserDict):
             raise ValueError("There isn't such record")
         return result
 
-    def paginate(self, records_per_page):
-        sorted_contacts = sorted(self.items())
-        total_pages = (len(sorted_contacts) + records_per_page - 1) // records_per_page
-
-        start_idx = 0
-
-        for _ in range(total_pages):
-            end_idx = start_idx + records_per_page
-            page = sorted_contacts[start_idx:end_idx]
-            yield page
-            start_idx = end_idx + 1
-
-rec = Record("Bob", "777777777777", "2020-01-01")
-rec1 = Record("Bob1", "555555555555", "2010-07-02")
-rec2 = Record("Bob2", "666666666666", "2001-09-20")
-rec3 = Record("Bob3", "111111111111", "2000-04-15")
-rec4 = Record("Bob4", "222222222222", "1995-02-08")
-
-ab = AddressBook.add_record(rec)
-
-print(ab)
+    def paginate(self, records_per_page: int):
+        counter = 0
+        list_rec = []
+        for record in self.data.values():
+            list_rec.append(record)
+            counter += 1
+            if not counter % records_per_page: 
+                yield list_rec
+                list_rec = []
+            if counter == len(self.data):
+                yield list_rec  
 
 
-if __name__ == "__main__":
-    name = Name("Bill")
-    phone = Phone("1234567890")
-    rec = Record(name, phone)
-    ab = AddressBook()
-    ab.add_record(rec)
-
-    assert isinstance(ab["Bill"], Record)
-    assert isinstance(ab["Bill"].name, Name)
-    assert isinstance(ab["Bill"].phones, list)
-    assert isinstance(ab["Bill"].phones[0], Phone)
-    assert ab["Bill"].phones[0].value == "1234567890"
-
-    print("All Ok)")
